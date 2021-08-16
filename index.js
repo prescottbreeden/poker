@@ -44,10 +44,11 @@ const match = (predFnList) => (arg) => {
 const keys = (valueObject) => Object.keys(valueObject);
 const eq = (a) => (b) => JSON.stringify(a) === JSON.stringify(b);
 const both = (a) => (b) => (arg) => a(arg) && b(arg);
+const length = (a) => a.length;
 const pipe = (...fns) => (arg) => fns.reduce((acc, curr) => curr(acc), arg);
 
-const fullhouse = pipe(buildHandValues('value'), keys, (x) => x.length, eq(2));
-const flush = pipe(buildHandValues('suit'), keys, (x) => x.length, eq(1));
+const fullhouse = pipe(buildHandValues('value'), keys, length, eq(2));
+const flush = pipe(buildHandValues('suit'), keys, length, eq(1));
 
 const ofAKind = (amount) => (hand) => {
   const vals = buildHandValues('value')(hand);
