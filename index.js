@@ -32,7 +32,6 @@ const buildHandValues = (prop) => (hand) => {
   }, {});
 };
 
-// 'Ace': 3, 'Seven' : 2
 const match = (predFnList) => (arg) => {
   for (let [p, f] in predFnList) {
     if (p(arg)) {
