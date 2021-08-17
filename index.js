@@ -137,7 +137,8 @@ const hand = [
 ];
 
 console.log('--[ example cases ]--');
-console.log(buildHandValues('suit')(hand));
+console.log('suits', buildHandValues('suit')(hand));
+console.log('values', buildHandValues('value')(hand));
 console.log('royal flush', royalFlush(hand));
 console.log('straight flush', both(flush)(straight)(hand));
 console.log('4 of a kind', ofAKind(4)(hand));
