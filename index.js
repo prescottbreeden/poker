@@ -59,25 +59,17 @@ const ofAKind = (amount) => (hand) => {
   }, false);
 };
 
-const getHighCard = (hand) => {
-  return hand.reduce((acc, curr) => {
-    return curr.value > acc ? curr.value : acc;
-  }, -Infinity);
-};
-
 const twoPair = (hand) => {
   // must have 2 keys in value object
   // 2 of those keys must have 2 cards
   const valueObject = buildHandValues('value')(hand);
   if (pipe(keys, length, eq(2))(valueObject)) {
     const count = keys(valueObject).reduce((acc, curr) => {
-      if (valueObject[curr] === 2) {
-        return acc + 1;
-      } else {
-        return acc;
-      }
+      return (valueObject[curr] === 2)
+        ? acc + 1
+        : acc;
     }, 0);
-    return count === 2 ? true : false;
+    return count === 2;
   }
   return false;
 };
@@ -95,10 +87,9 @@ const straight = (hand) => {
 };
 
 const royalFlush = (hand) => {
-  const isStraight = straight(hand);
-  const isSingleSuit = keys(buildHandValues('suit')(hand)).length === 1;
+  const singleSuit = pipe(buildHandValues('suit'), keys, length, eq(1));
   const sumIs60 = hand.reduce((acc, curr) => acc + curr.value, 0) === 60;
-  return sumIs60 && isSingleSuit && isStraight;
+  return singleSuit(hand) && straight(hand) && sumIs60;
 };
 
 const bestHandValue = (hand) =>
