@@ -28,7 +28,7 @@ const match = (predFnList) => (arg) => {
 // poker functions
 const sumHandValues = (hand) => hand.reduce((acc, curr) => acc + curr.value, 0);
 
-const buildHandValues = (prop) => (hand) => {
+const handFrequencies = (prop) => (hand) => {
   return hand.reduce((acc, curr) => {
     return acc[curr[prop]]
       ? { ...acc, [curr[prop]]: acc[curr[prop]] + 1 }
@@ -37,14 +37,14 @@ const buildHandValues = (prop) => (hand) => {
 };
 
 const ofAKind = (amount) => (hand) => {
-  const vals = buildHandValues('value')(hand);
+  const vals = handFrequencies('value')(hand);
   return keys(vals).reduce((acc, curr) => {
     return acc ? acc : vals[curr] === amount;
   }, false);
 };
 
 const twoPair = (hand) => {
-  const valueObject = buildHandValues('value')(hand);
+  const valueObject = handFrequencies('value')(hand);
   if (pipe(keys, length, gt(1))(valueObject)) {
     const count = keys(valueObject).reduce((acc, curr) => {
       return valueObject[curr] === 2 ? acc + 1 : acc;
@@ -67,7 +67,7 @@ const straight = (hand) => {
   return true;
 };
 
-const flush = pipe(buildHandValues('suit'), keys, length, eq(1));
+const flush = pipe(handFrequencies('suit'), keys, length, eq(1));
 
 const royalFlush = (hand) => {
   return [flush, straight, pipe(sumHandValues, eq(60))]
@@ -106,10 +106,10 @@ function winningPokerHand(hand1, hand2) {
 module.exports = {
   bestHandValue,
   both,
-  buildHandValues,
   eq,
   flush,
   gt,
+  handFrequencies,
   keys,
   length,
   ofAKind,

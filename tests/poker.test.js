@@ -4,10 +4,10 @@ const mocks = require('./pokerHand.mocks');
 const {
   bestHandValue,
   both,
-  buildHandValues,
   eq,
   flush,
   gt,
+  handFrequencies,
   keys,
   length,
   ofAKind,
@@ -160,25 +160,25 @@ describe('poker utiliities', () => {
       expect(sumHandValues(mocks.royalFlushHand)).toBe(60);
     });
   });
-  describe('buildHandValues', () => {
+  describe('handFrequencies', () => {
     it('partially applies the first argument and returns a function', () => {
-      const func = buildHandValues('suit');
+      const func = handFrequencies('suit');
       expect(typeof func).toBe('function');
     });
     it('returns an object with the frequencies of the supplied property', () => {
-      const suitFrequencies = buildHandValues('suit')(mocks.fullHouseHand);
+      const suitFrequencies = handFrequencies('suit')(mocks.fullHouseHand);
       expect(suitFrequencies).toStrictEqual({
         Diamond: 2,
         Spade: 1,
         Heart: 1,
         Club: 1,
       });
-      const valueFrequencies = buildHandValues('value')(mocks.fullHouseHand);
+      const valueFrequencies = handFrequencies('value')(mocks.fullHouseHand);
       expect(valueFrequencies).toStrictEqual({
         14: 3,
         7: 2,
       });
-      const faceFrequencies = buildHandValues('face')(mocks.fullHouseHand);
+      const faceFrequencies = handFrequencies('face')(mocks.fullHouseHand);
       expect(faceFrequencies).toStrictEqual({
         Ace: 3,
         Seven: 2,
