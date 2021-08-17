@@ -38,7 +38,7 @@ const ofAKind = (amount) => (hand) => {
 
 // twoPair :: [card] -> boolean
 const twoPair = (hand) => {
-  // value frequencies of two+ with two values of 2
+  // value frequency with 2 keys with value of 2
   const valueObject = handFrequencies('value')(hand);
   const count = keys(valueObject).reduce((acc, curr) => {
     return valueObject[curr] === 2 ? acc + 1 : acc;
