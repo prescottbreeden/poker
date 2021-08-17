@@ -25,10 +25,12 @@ const match = (predFnList) => (arg) => {
   throw new Error('Missing match case');
 };
 
-// poker functions
+// sumHandValues :: [card] -> int
 const sumHandValues = (hand) => hand.reduce((acc, curr) => acc + curr.value, 0);
 
+// handFrequencies :: string -> [card] -> { [string]: number }
 const handFrequencies = (prop) => (hand) => {
+  // frequencies of a property in a hand
   return hand.reduce((acc, curr) => {
     return acc[curr[prop]]
       ? { ...acc, [curr[prop]]: acc[curr[prop]] + 1 }
@@ -36,14 +38,18 @@ const handFrequencies = (prop) => (hand) => {
   }, {});
 };
 
+// ofAKind :: int -> [card] -> boolean
 const ofAKind = (amount) => (hand) => {
+  // value frequencies of n-ammount
   const vals = handFrequencies('value')(hand);
   return keys(vals).reduce((acc, curr) => {
     return acc ? acc : vals[curr] === amount;
   }, false);
 };
 
+// twoPair :: [card] -> boolean
 const twoPair = (hand) => {
+  // value frequencies of two+ with two values of 2
   const valueObject = handFrequencies('value')(hand);
   if (pipe(keys, length, gt(1))(valueObject)) {
     const count = keys(valueObject).reduce((acc, curr) => {
@@ -55,8 +61,9 @@ const twoPair = (hand) => {
   }
 };
 
-// assuming player is auto-sorting their hand
+// straight :: [card] -> boolean
 const straight = (hand) => {
+  // all values in sorted hand 1 away
   for (let i = 0; i < hand.length - 1; i++) {
     const card1 = hand[i];
     const card2 = hand[i + 1];
@@ -67,16 +74,21 @@ const straight = (hand) => {
   return true;
 };
 
+// flush :: [card] -> boolean
 const flush = pipe(handFrequencies('suit'), keys, length, eq(1));
 
+// royalFlush :: [card] -> boolean
 const royalFlush = (hand) => {
+  // hand is a flush, a straight, and has a value sum of 60
   return [flush, straight, pipe(sumHandValues, eq(60))]
     .map((f) => f(hand))
     .every(eq(true));
 };
 
-const bestHandValue = (hand) =>
-  match([
+// bestHandValue :: [card] -> int
+const bestHandValue = (hand) => {
+  // get the value of a poker hand
+  return match([
     [royalFlush, () => 9],
     [both(straight)(flush), () => 8],
     [ofAKind(4), () => 7],
@@ -88,6 +100,7 @@ const bestHandValue = (hand) =>
     [ofAKind(2), () => 1],
     [() => true, () => 0],
   ])(hand);
+}
 
 function winningPokerHand(hand1, hand2) {
   const hand1Value = bestHandValue(hand1);
