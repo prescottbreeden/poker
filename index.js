@@ -1,28 +1,32 @@
-/*
-    calculate the winning hand in a game of poker with the following rules:
+// Challenge: complete the function "winningPokerHand" below and calculate the
+// winning hand in a game of poker
 
-   *
-    Royal flush - The five highest cards with values in sequential order and the same suit Will always be 10, J, Q, K, A - 
-    Straight flush - Five cards with values in sequential order and the same suit
-    Four of a kind- Four cards with the same value - 
-    Full house - Three cards with the same value and two other cards with the same value -
-    Flush - All five cards with the same suit.
-    Straight - All five cards with values in sequential order
-    Three of a kind - Three cards with the same value
-    Two pair - Two cards with the same value and two other cards with the same value
-    One pair - Two cards with the same value
-    High card - Highest card in the hand
-   *
-*/
-
-// example hand
-// const hand = [
+// const exampleHand = [
 //   { suit: 'Diamond', value: 14, face: 'Ace' },
 //   { suit: 'Space', value: 14, face: 'Ace' },
 //   { suit: 'Heart', value: 14, face: 'Ace' },
 //   { suit: 'Club', value: 7, face: 'Seven' },
 //   { suit: 'Diamond', value: 7, face: 'Seven' },
 // ];
+
+// utilities
+const keys = (valueObject) => Object.keys(valueObject);
+const eq = (a) => (b) => JSON.stringify(a) === JSON.stringify(b);
+const gt = (a) => (b) => b > a;
+const both = (a) => (b) => (arg) => a(arg) && b(arg);
+const length = (a) => a.length;
+const pipe = (...fns) => (arg) => fns.reduce((acc, curr) => curr(acc), arg);
+const match = (predFnList) => (arg) => {
+  for (let [p, f] of predFnList) {
+    if (p(arg)) {
+      return f(arg);
+    }
+  }
+  throw new Error('Missing match case');
+};
+
+// poker functions
+const sumHandValues = (hand) => hand.reduce((acc, curr) => acc + curr.value, 0);
 
 const buildHandValues = (prop) => (hand) => {
   return hand.reduce((acc, curr) => {
@@ -32,26 +36,6 @@ const buildHandValues = (prop) => (hand) => {
   }, {});
 };
 
-const match = (predFnList) => (arg) => {
-  for (let [p, f] of predFnList) {
-    if (p(arg)) {
-      return f(arg);
-    }
-  }
-  throw new Error('Missing match case');
-};
-const keys = (valueObject) => Object.keys(valueObject);
-const eq = (a) => (b) => JSON.stringify(a) === JSON.stringify(b);
-const both = (a) => (b) => (arg) => a(arg) && b(arg);
-const length = (a) => a.length;
-const pipe =
-  (...fns) =>
-  (arg) =>
-    fns.reduce((acc, curr) => curr(acc), arg);
-
-const fullhouse = pipe(buildHandValues('value'), keys, length, eq(2));
-const flush = pipe(buildHandValues('suit'), keys, length, eq(1));
-
 const ofAKind = (amount) => (hand) => {
   const vals = buildHandValues('value')(hand);
   return keys(vals).reduce((acc, curr) => {
@@ -60,18 +44,15 @@ const ofAKind = (amount) => (hand) => {
 };
 
 const twoPair = (hand) => {
-  // must have 2 keys in value object
-  // 2 of those keys must have 2 cards
   const valueObject = buildHandValues('value')(hand);
-  if (pipe(keys, length, eq(2))(valueObject)) {
+  if (pipe(keys, length, gt(1))(valueObject)) {
     const count = keys(valueObject).reduce((acc, curr) => {
-      return (valueObject[curr] === 2)
-        ? acc + 1
-        : acc;
+      return valueObject[curr] === 2 ? acc + 1 : acc;
     }, 0);
     return count === 2;
+  } else {
+    return false;
   }
-  return false;
 };
 
 // assuming player is auto-sorting their hand
@@ -86,18 +67,20 @@ const straight = (hand) => {
   return true;
 };
 
+const flush = pipe(buildHandValues('suit'), keys, length, eq(1));
+
 const royalFlush = (hand) => {
-  const singleSuit = pipe(buildHandValues('suit'), keys, length, eq(1));
-  const sumIs60 = hand.reduce((acc, curr) => acc + curr.value, 0) === 60;
-  return singleSuit(hand) && straight(hand) && sumIs60;
+  return [flush, straight, pipe(sumHandValues, eq(60))]
+    .map((f) => f(hand))
+    .every(eq(true));
 };
 
 const bestHandValue = (hand) =>
   match([
     [royalFlush, () => 9],
-    [both(flush)(straight), () => 8],
+    [both(straight)(flush), () => 8],
     [ofAKind(4), () => 7],
-    [fullhouse, () => 6],
+    [both(ofAKind(3))(ofAKind(2)), () => 6],
     [flush, () => 5],
     [straight, () => 4],
     [ofAKind(3), () => 3],
@@ -111,32 +94,29 @@ function winningPokerHand(hand1, hand2) {
   const hand2Value = bestHandValue(hand2);
 
   if (hand1Value > hand2Value) {
-    return 'Player 1 wins!!!!';
+    return 'Player 1 wins';
   } else if (hand2Value > hand1Value) {
-    return 'Player 2 wins!!!!';
+    return 'Player 2 wins';
   } else {
     return 'play war!';
   }
 }
 
-const hand = [
-  { suit: 'Diamond', value: 14, face: 'Ace' },
-  { suit: 'Space', value: 14, face: 'Ace' },
-  { suit: 'Heart', value: 14, face: 'Ace' },
-  { suit: 'Club', value: 7, face: 'Seven' },
-  { suit: 'Diamond', value: 7, face: 'Seven' },
-];
-
-console.log('--[ example cases ]--');
-console.log('suits', buildHandValues('suit')(hand));
-console.log('values', buildHandValues('value')(hand));
-console.log('royal flush', royalFlush(hand));
-console.log('straight flush', both(flush)(straight)(hand));
-console.log('4 of a kind', ofAKind(4)(hand));
-console.log('fullhouse', fullhouse(hand));
-console.log('flush', flush(hand));
-console.log('straight', straight(hand));
-console.log('3 of a kind', ofAKind(3)(hand));
-console.log('two pair', twoPair(hand));
-console.log('2 of a kind', ofAKind(2)(hand));
-console.log('hand value', bestHandValue(hand));
+// see poker.test.js for examples
+module.exports = {
+  bestHandValue,
+  both,
+  buildHandValues,
+  eq,
+  flush,
+  gt,
+  keys,
+  length,
+  ofAKind,
+  pipe,
+  royalFlush,
+  straight,
+  sumHandValues,
+  twoPair,
+  winningPokerHand,
+};
