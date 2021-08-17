@@ -26,14 +26,14 @@
 
 const buildHandValues = (prop) => (hand) => {
   return hand.reduce((acc, curr) => {
-    return acc[curr.face]
+    return acc[curr[prop]]
       ? { ...acc, [curr[prop]]: acc[curr[prop]] + 1 }
       : { ...acc, [curr[prop]]: 1 };
   }, {});
 };
 
 const match = (predFnList) => (arg) => {
-  for (let [p, f] in predFnList) {
+  for (let [p, f] of predFnList) {
     if (p(arg)) {
       return f(arg);
     }
@@ -44,14 +44,17 @@ const keys = (valueObject) => Object.keys(valueObject);
 const eq = (a) => (b) => JSON.stringify(a) === JSON.stringify(b);
 const both = (a) => (b) => (arg) => a(arg) && b(arg);
 const length = (a) => a.length;
-const pipe = (...fns) => (arg) => fns.reduce((acc, curr) => curr(acc), arg);
+const pipe =
+  (...fns) =>
+  (arg) =>
+    fns.reduce((acc, curr) => curr(acc), arg);
 
 const fullhouse = pipe(buildHandValues('value'), keys, length, eq(2));
 const flush = pipe(buildHandValues('suit'), keys, length, eq(1));
 
 const ofAKind = (amount) => (hand) => {
   const vals = buildHandValues('value')(hand);
-  return vals.reduce((acc, curr) => {
+  return keys(vals).reduce((acc, curr) => {
     return acc ? acc : vals[curr] === amount;
   }, false);
 };
@@ -66,7 +69,7 @@ const twoPair = (hand) => {
   // must have 2 keys in value object
   // 2 of those keys must have 2 cards
   const valueObject = buildHandValues('value')(hand);
-  if (countKeys(vals) === 2) {
+  if (pipe(keys, length, eq(2))(valueObject)) {
     const count = keys(valueObject).reduce((acc, curr) => {
       if (valueObject[curr] === 2) {
         return acc + 1;
@@ -98,18 +101,19 @@ const royalFlush = (hand) => {
   return sumIs60 && isSingleSuit && isStraight;
 };
 
-const bestHandValue = match([
-  [royalFlush, () => 9],
-  [both(flush)(straight), () => 8],
-  [ofAKind(4), () => 7],
-  [fullhouse, () => 6],
-  [flush, () => 5],
-  [straight, () => 4],
-  [ofAKind(3), () => 3],
-  [twoPair, () => 2],
-  [ofAKind(2), () => 1],
-  [() => true, () => 0],
-]);
+const bestHandValue = (hand) =>
+  match([
+    [royalFlush, () => 9],
+    [both(flush)(straight), () => 8],
+    [ofAKind(4), () => 7],
+    [fullhouse, () => 6],
+    [flush, () => 5],
+    [straight, () => 4],
+    [ofAKind(3), () => 3],
+    [twoPair, () => 2],
+    [ofAKind(2), () => 1],
+    [() => true, () => 0],
+  ])(hand);
 
 function winningPokerHand(hand1, hand2) {
   const hand1Value = bestHandValue(hand1);
@@ -123,3 +127,24 @@ function winningPokerHand(hand1, hand2) {
     return 'play war!';
   }
 }
+
+const hand = [
+  { suit: 'Diamond', value: 14, face: 'Ace' },
+  { suit: 'Space', value: 14, face: 'Ace' },
+  { suit: 'Heart', value: 14, face: 'Ace' },
+  { suit: 'Club', value: 7, face: 'Seven' },
+  { suit: 'Diamond', value: 7, face: 'Seven' },
+];
+
+console.log('--[ example cases ]--');
+console.log(buildHandValues('suit')(hand));
+console.log('royal flush', royalFlush(hand));
+console.log('straight flush', both(flush)(straight)(hand));
+console.log('4 of a kind', ofAKind(4)(hand));
+console.log('fullhouse', fullhouse(hand));
+console.log('flush', flush(hand));
+console.log('straight', straight(hand));
+console.log('3 of a kind', ofAKind(3)(hand));
+console.log('two pair', twoPair(hand));
+console.log('2 of a kind', ofAKind(2)(hand));
+console.log('hand value', bestHandValue(hand));
