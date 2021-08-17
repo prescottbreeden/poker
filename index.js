@@ -1,5 +1,10 @@
+const { keys, eq, gt, both, length, pipe, match } = require('./utils');
+
 // Challenge: complete the function "winningPokerHand" below and calculate the
 // winning hand in a game of poker
+
+// Card Definition:
+// { suit: string, value: number, face: string }
 
 // const exampleHand = [
 //   { suit: 'Diamond', value: 14, face: 'Ace' },
@@ -9,23 +14,7 @@
 //   { suit: 'Diamond', value: 7, face: 'Seven' },
 // ];
 
-// utilities
-const keys = (valueObject) => Object.keys(valueObject);
-const eq = (a) => (b) => JSON.stringify(a) === JSON.stringify(b);
-const gt = (a) => (b) => b > a;
-const both = (a) => (b) => (arg) => a(arg) && b(arg);
-const length = (a) => a.length;
-const pipe = (...fns) => (arg) => fns.reduce((acc, curr) => curr(acc), arg);
-const match = (predFnList) => (arg) => {
-  for (let [p, f] of predFnList) {
-    if (p(arg)) {
-      return f(arg);
-    }
-  }
-  throw new Error('Missing match case');
-};
-
-// sumHandValues :: [card] -> int
+// sumHandValues :: [card] -> number
 const sumHandValues = (hand) => hand.reduce((acc, curr) => acc + curr.value, 0);
 
 // handFrequencies :: string -> [card] -> { [string]: number }
@@ -38,7 +27,7 @@ const handFrequencies = (prop) => (hand) => {
   }, {});
 };
 
-// ofAKind :: int -> [card] -> boolean
+// ofAKind :: number -> [card] -> boolean
 const ofAKind = (amount) => (hand) => {
   // value frequencies of n-ammount
   const vals = handFrequencies('value')(hand);
@@ -51,14 +40,10 @@ const ofAKind = (amount) => (hand) => {
 const twoPair = (hand) => {
   // value frequencies of two+ with two values of 2
   const valueObject = handFrequencies('value')(hand);
-  if (pipe(keys, length, gt(1))(valueObject)) {
-    const count = keys(valueObject).reduce((acc, curr) => {
-      return valueObject[curr] === 2 ? acc + 1 : acc;
-    }, 0);
-    return count === 2;
-  } else {
-    return false;
-  }
+  const count = keys(valueObject).reduce((acc, curr) => {
+    return valueObject[curr] === 2 ? acc + 1 : acc;
+  }, 0);
+  return count === 2;
 };
 
 // straight :: [card] -> boolean
@@ -85,7 +70,7 @@ const royalFlush = (hand) => {
     .every(eq(true));
 };
 
-// bestHandValue :: [card] -> int
+// bestHandValue :: [card] -> number
 const bestHandValue = (hand) => {
   // get the value of a poker hand
   return match([
@@ -100,7 +85,7 @@ const bestHandValue = (hand) => {
     [ofAKind(2), () => 1],
     [() => true, () => 0],
   ])(hand);
-}
+};
 
 function winningPokerHand(hand1, hand2) {
   const hand1Value = bestHandValue(hand1);
