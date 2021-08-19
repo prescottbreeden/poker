@@ -64,7 +64,7 @@ both(straight)(flush)(ofAKind(2))(hand)
 This code would immediately crash, but even a non-crashing version would set off some pretty strong warning bells since the business logic is encoded in the syntax:
 
 ```js
-pipe(straight, flush, ofAKind(2))(hand)
+all([straight(hand), flush(hand), ofAKind(2)(hand)])
 ```
 
 ### etc.
