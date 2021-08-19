@@ -39,9 +39,17 @@ The reasons I didn't are:
 However, such is not the case with a fullhouse, where it is a hand that has a 3 of a kind and a 2 of a kind:
 
 ```js
-both(ofAKind(3))(ofAKind(2))(hand)
+both(ofAKind(3))(ofAKind(2))
 ```
-
+You could also explain that a full house is when a 5-card hand only has two different face cards:
+```js
+pipe(handFrequencies('face'), keys, length, eq(2))
+```
+And if we decided it made sense to build an abstraction for a fullhouse, both of these are perfectly valid within a 5-card domain, but if we were planning on expanding the system for higher-carded games, only one of these will work:
+```js
+const fullHouse = both(ofAKind(3))(ofAKind(2));
+const fullHouse = pipe(handFrequencies('face'), keys, length, eq(2)); // assumes 5-cards
+```
 While this is not yet a normal style in JavaScript, it has maintainability benefits as well as readability benefits.
 
 ### Readability
