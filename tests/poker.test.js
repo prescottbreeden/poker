@@ -21,14 +21,14 @@ describe('poker hand predicates', () => {
       expect(royalFlush(mocks.straightFlushHand)).toBe(false);
     });
   });
-  describe('straightFlush', () => {
+  describe('straight flush', () => {
     it('returns true if a hand is a straight flush', () => {
       expect(both(straight)(flush)(mocks.royalFlushHand)).toBe(true);
       expect(both(straight)(flush)(mocks.straightFlushHand)).toBe(true);
       expect(both(straight)(flush)(mocks.straightHand)).toBe(false);
     });
   });
-  describe('fullhouse', () => {
+  describe('full house', () => {
     expect(both(ofAKind(3))(ofAKind(2))(mocks.fullHouseHand)).toBe(true);
     expect(both(ofAKind(3))(ofAKind(2))(mocks.twoOfAKindHand)).toBe(false);
   });
