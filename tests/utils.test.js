@@ -1,27 +1,22 @@
-const { both, eq, gt, keys, length, match, pipe } = require('../utils');
+const { both, eq, keys, length, match, pipe } = require('../utils');
 
 describe('utility functions', () => {
   describe('both', () => {
     // test helpers
     const isDingo = (string) => string === 'dingo';
     const isBob = (string) => string === 'bob';
-    const isLength = (len) => (word) => word.length === len;
+    const isLower = (word) => word.toLowerCase() === word;
     it('returns a function for the first two arguments supplied', () => {
-      const arity2 = both(() => null);
+      const arity2 = both(isDingo);
+      const arity1 = both(isBob)(isLower);
       expect(typeof arity2).toBe('function');
-      const arity1 = both(
-        () => null,
-        () => null
-      );
       expect(typeof arity1).toBe('function');
     });
     it('evalutes two predicate fns with an argument and returns true if both are truthy', () => {
-      expect(both(isDingo)(isLength(5))('dingo')).toBe(true); // true && true
-    });
-    it('evalutes two predicate fns with an argument and returns false if both are not truthy', () => {
-      expect(both(isBob)(isLength(4))('dingo')).toBe(false); // false && false
-      expect(both(isBob)(isLength(5))('dingo')).toBe(false); // false && true
-      expect(both(isDingo)(isLength(4))('dingo')).toBe(false); // true && false
+      expect(both(isDingo)(isLower)('dingo')).toBe(true); // true && true
+      expect(both(isDingo)(isLower)('DINGO')).toBe(false); // true && false
+      expect(both(isBob)(isLower)('dingo')).toBe(false); // false && true
+      expect(both(isBob)(isLower)('DINGO')).toBe(false); // false && false
     });
   });
 
@@ -34,19 +29,6 @@ describe('utility functions', () => {
       expect(eq(42)(42)).toBe(true);
       expect(eq(42)('dingo')).toBe(false);
       expect(eq({ name: 'bob' })({ name: 'bob' })).toBe(true);
-    });
-  });
-
-  describe('gt', () => {
-    it('returns a function when given one argument', () => {
-      expect(typeof gt(1)).toBe('function');
-    });
-    it('returns true when the second number is greater than the first', () => {
-      expect(gt(2)(5)).toBe(true);
-    });
-    it('returns false when the second number is not greater than the first', () => {
-      expect(gt(5)(2)).toBe(false);
-      expect(gt(5)(5)).toBe(false);
     });
   });
 
@@ -65,7 +47,7 @@ describe('utility functions', () => {
   });
 
   describe('pipe', () => {
-    // test helpers
+    // test helper
     const add = (a) => (b) => a + b;
     it('takes n-length functions with arity of 1 and returns a fn with arity 1', () => {
       const arity1 = pipe(add(1), add(2), add(3), add(4));
@@ -79,24 +61,24 @@ describe('utility functions', () => {
   });
 
   describe('match', () => {
-    // test helpers
+    // test helper
     const waterAt = match([
-      [eq(0), (temp) => `Water freezes @ ${temp}C.`],
-      [eq(100), (temp) => `Water boils @ ${temp}C.`],
-      [() => true, (temp) => `Water does nothing fancy @ ${temp}C.`],
+      [eq(0), (temp) => `Water freezes at ${temp}C.`],
+      [eq(100), (temp) => `Water boils at ${temp}C.`],
+      [() => true, (temp) => `Water does nothing fancy at ${temp}C.`],
     ]);
     it('takes a list of predicate/function tuples and returns a function', () => {
       expect(typeof waterAt).toBe('function');
     });
     it('evalues a list of predicates and returns the matching function', () => {
-      expect(waterAt(0)).toBe('Water freezes @ 0C.');
-      expect(waterAt(100)).toBe('Water boils @ 100C.');
-      expect(waterAt(42)).toBe('Water does nothing fancy @ 42C.');
+      expect(waterAt(0)).toBe('Water freezes at 0C.');
+      expect(waterAt(100)).toBe('Water boils at 100C.');
+      expect(waterAt(42)).toBe('Water does nothing fancy at 42C.');
     });
     it('throws an exception if no match case is found', () => {
       const waterAt = match([
-        [eq(0), (temp) => `Water freezes @ ${temp}C.`],
-        [eq(100), (temp) => `Water boils @ ${temp}C.`],
+        [eq(0), (temp) => `Water freezes at ${temp}C.`],
+        [eq(100), (temp) => `Water boils at ${temp}C.`],
       ]);
       expect(() => waterAt(42)).toThrowError('Missing match case');
     });

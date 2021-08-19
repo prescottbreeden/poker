@@ -4,9 +4,6 @@ const keys = (valueObject) => Object.keys(valueObject);
 // eq :: a -> b -> bool
 const eq = (a) => (b) => JSON.stringify(a) === JSON.stringify(b);
 
-// gt :: a -> b -> bool
-const gt = (a) => (b) => b > a;
-
 // both :: fn -> fn -> a -> bool
 const both = (a) => (b) => (arg) => a(arg) && b(arg);
 
@@ -16,7 +13,7 @@ const length = (a) => a.length;
 // pipe :: ((a -> b), (c -> d), ...) -> e -> ((e -> f), (g -> h), ...)
 const pipe = (...fns) => (arg) => fns.reduce((acc, curr) => curr(acc), arg);
 
-// match :: [f, g] -> a -> g(a)
+// match :: [f, g] -> a -> b
 const match = (predFnList) => (arg) => {
   for (let [predicate, func] of predFnList) {
     if (predicate(arg)) {
@@ -29,10 +26,8 @@ const match = (predFnList) => (arg) => {
 module.exports = {
   keys,
   eq,
-  gt,
   both,
   length,
   pipe,
   match,
 };
-

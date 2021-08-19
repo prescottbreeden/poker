@@ -1,4 +1,4 @@
-const { keys, eq, gt, both, length, pipe, match } = require('./utils');
+const { keys, eq, both, length, pipe, match } = require('./utils');
 
 // Challenge: complete the function "winningPokerHand" below and calculate the
 // winning hand in a game of poker
@@ -15,24 +15,23 @@ const { keys, eq, gt, both, length, pipe, match } = require('./utils');
 // ];
 
 // sumHandValues :: [card] -> number
-const sumHandValues = (hand) => hand.reduce((acc, curr) => acc + curr.value, 0);
+const sumHandValues = (hand) => hand.reduce((acc, card) => acc + card.value, 0);
 
 // handFrequencies :: string -> [card] -> { [string]: number }
 const handFrequencies = (prop) => (hand) => {
   // frequencies of a property in a hand
-  return hand.reduce((acc, curr) => {
-    return acc[curr[prop]]
-      ? { ...acc, [curr[prop]]: acc[curr[prop]] + 1 }
-      : { ...acc, [curr[prop]]: 1 };
+  return hand.reduce((acc, card) => {
+    acc[card[prop]] = (acc[card[prop]] || 0) + 1;
+    return acc;
   }, {});
 };
 
 // ofAKind :: number -> [card] -> boolean
 const ofAKind = (amount) => (hand) => {
   // value frequencies of n-ammount
-  const vals = handFrequencies('value')(hand);
-  return keys(vals).reduce((acc, curr) => {
-    return acc ? acc : vals[curr] === amount;
+  const valueObject = handFrequencies('value')(hand);
+  return keys(valueObject).reduce((acc, value) => {
+    return acc ? acc : valueObject[value] === amount;
   }, false);
 };
 
@@ -40,8 +39,8 @@ const ofAKind = (amount) => (hand) => {
 const twoPair = (hand) => {
   // value frequency with 2 keys with value of 2
   const valueObject = handFrequencies('value')(hand);
-  const count = keys(valueObject).reduce((acc, curr) => {
-    return valueObject[curr] === 2 ? acc + 1 : acc;
+  const count = keys(valueObject).reduce((acc, value) => {
+    return valueObject[value] === 2 ? acc + 1 : acc;
   }, 0);
   return count === 2;
 };
@@ -103,15 +102,9 @@ function winningPokerHand(hand1, hand2) {
 // see poker.test.js for examples
 module.exports = {
   bestHandValue,
-  both,
-  eq,
   flush,
-  gt,
   handFrequencies,
-  keys,
-  length,
   ofAKind,
-  pipe,
   royalFlush,
   straight,
   sumHandValues,
