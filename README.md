@@ -96,9 +96,11 @@ const flush = pipe(handFrequencies('suit'), keys, filter('wild'), length, eq(1))
 ```
 To create this new abstraction, we would update the handFrequencies function to produce `wild` keys, filter those keys when looking for a flush, and then evaluate the remaining.
 
-I do not intend to impugn this particular library, it seems quite popular and I'm sure a great deal of effort has gone into its creation and maintenance, but I want to point out that outside of a couple hundred lines of game-specific logic, the library doesn't really do that much more yet it resulted in a file with more than 1,800 lines of code, when this repo achieved much of the core hand-calculation logic with about 80 lines of code. 
+i do not intend to impugn this particular library, nor am I suggest lines of code as a measure of quality (with golf rules). In fact, it seems that this library is quite popular and there is nothing inately bad about it. My intention to to point out the difficulty the style has to take advantage of discovered abstractions. Because each of the methods of this library are tied to the state of an object, extending them is difficult without redesign. In fact, it would be perfectly doable to rewrite this library to use the same kind of abstraction I used. The difference is not about the capability of the style, but rather the unfortunate reality that abstractions are discovered more often then they are disgned. When I was writing this code, initially my `handFrequencies` function only returned card values. However, once I started working on hands that required suit information, it became clear I could use the same function if I wrapped it in a Higher Order Function to inject the card property `suit` or `value` or `face`. Adding this had very little cost, as would adding a filter for wild cards or an "n-away" function to evaluate wild cards for required face/value hands such as with a straight.
 
-The key reason for this boils down to missing abstractions and too much inheritance, and if you scroll through you will notice it devotes hundreds of lines of logic to differentiating "full house", "four of a kind", "three of a kind", and "pair", despite these all being essentially a single abstraction: 
+This is important because as Kevlin Henney teaches, when faced with a fork in the road of two options, the important thing is not which choice you choose, but the fact that a choice exists. Given the choice between two options, it is best to design your code so that choice is less important. 
+
+As I was building this, another function that was initially called `fourOfAKing` examined a hand for 4 instances of a face card. Once completed and I moved onto `fullHouse`, it was obvious that instead of hardcoding the values I could simply wrap it in a Higher Order Function as well and inject the frequency I was looking for. With that minor modification, `fourOfAKind` became `ofAKind` and then I simply had to ensure that a hand qualified for both a `ofAKind(3)` and a `ofAKind(2)` and logic was complete. However, if you look at the library you will notice that it devotes hundreds of lines of logic to differentiating "full house", "four of a kind", "three of a kind", and "pair", despite these all being essentially a single abstraction: 
 
 ```js
 both(ofAKind(3))(ofAKind(2)) // fullhouse
@@ -106,4 +108,3 @@ ofAKind(4) // 4 of a kind
 ofAKind(3) // 3 of a kind
 ofAKind(2) // a pair
 ```
-While there is nothing wrong with classes and OO, there is tremendous benefit from being able to adopt smaller, lighter, and more flexible abstractions.
